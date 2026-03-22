@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent_System 单页摘要</title>
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 12mm;
+    }
+
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #132238;
+      --muted: #526173;
+      --line: #d8e0ea;
+      --accent: #0f6cbd;
+      --accent-soft: #eaf3ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    }
+
+    body {
+      width: 100%;
+    }
+
+    .page {
+      width: 100%;
+      min-height: calc(210mm - 24mm);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 16px 10px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 10px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    .title-wrap h1 {
+      margin: 0 0 4px;
+      font-size: 24px;
+      line-height: 1.1;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 10.5pt;
+      line-height: 1.35;
+      max-width: 840px;
+    }
+
+    .badge {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid #c6ddff;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 9pt;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 10px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.03fr 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0 0 6px;
+      font-size: 12.5pt;
+      color: #0f2942;
+    }
+
+    p {
+      margin: 0;
+      font-size: 9.5pt;
+      line-height: 1.4;
+    }
+
+    ul {
+      margin: 4px 0 0 16px;
+      padding: 0;
+    }
+
+    li {
+      margin: 3px 0;
+      font-size: 9.2pt;
+      line-height: 1.28;
+    }
+
+    .persona {
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .persona-icon {
+      width: 82px;
+      height: 82px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #eaf3ff, #f8fbff);
+      border: 1px solid #cfe1fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .arch-box {
+      background: #f8fbff;
+      border: 1px solid #d6e6fb;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-top: 6px;
+    }
+
+    .flow {
+      font-size: 8.9pt;
+      line-height: 1.35;
+      white-space: normal;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 8.2pt;
+      line-height: 1.3;
+    }
+
+    .run-list li {
+      margin: 4px 0;
+    }
+
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+      background: #f2f6fa;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      padding-top: 7px;
+      font-size: 7.9pt;
+      line-height: 1.3;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="topbar">
+      <div class="title-wrap">
+        <h1>Agent 助手</h1>
+        <p class="subtitle">
+          一个面向电磁、信号处理与毫米波资料问答场景的本地知识检索应用。仓库证据显示，它以 React 聊天界面承载交互，由 FastAPI 调用 LangChain Agent，并通过 MCP 工具对 Milvus 做稠密 + 稀疏混合检索后返回答案。
+        </p>
+      </div>
+      <div class="badge">仓库名：Agent_System</div>
+    </section>
+
+    <section class="hero-grid">
+      <div class="card">
+        <h2>它是做什么的</h2>
+        <p>
+          这是一个“聊天式检索助手”，不是通用门户或多页面业务系统。前端欢迎语与示例问题都指向电磁波、信号处理、5G 毫米波等主题，说明它主要围绕专业文献/知识查询使用。
+        </p>
+      </div>
+      <div class="card">
+        <h2>它面向谁</h2>
+        <div class="persona">
+          <div class="persona-icon">AI</div>
+          <p>
+            主要面向需要用中文快速查询相关技术资料的研究人员、学生或工程人员，尤其是电磁、通信、信号处理、毫米波方向用户。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="main-grid">
+      <div class="card">
+        <h2>它能做什么</h2>
+        <ul>
+          <li>提供单页聊天界面，支持输入问题、显示问答记录与清空会话。</li>
+          <li>前端以 <code>thread_id</code> 维持当前会话线程，并通过 <code>/api/chat</code> 发起请求。</li>
+          <li>后端暴露聊天接口与健康检查接口，统一返回整理后的完整回复。</li>
+          <li>LangChain Agent 通过 MCP 挂载 <code>milvus_hybrid_search</code> 检索工具。</li>
+          <li>检索同时使用稠密向量与稀疏向量，并以 RRF 重排结果。</li>
+          <li>返回结果包含标题、作者、年份与正文内容片段，适合资料问答。</li>
+          <li>附带离线数据管线：PDF 提取 → Excel → 向量文件 → Milvus 入库。</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>它如何工作</h2>
+        <p>
+          在线链路由 5 个部分组成：前端 UI、FastAPI 网关、LangChain Agent、MCP 检索服务、Milvus/向量服务。
+        </p>
+        <div class="arch-box">
+          <div class="flow">
+            用户<br />
+            → React + Vite 前端（3000）<br />
+            → <code>POST /api/chat</code> 代理到 FastAPI（8000）<br />
+            → Agent 调用本地 MCP Server（stdio）<br />
+            → MCP 先向 54331/54332 取稠密/稀疏向量，再访问 Milvus（19530）执行 hybrid_search + RRF<br />
+            → 返回 Top 结果给 Agent<br />
+            → 后端汇总消息流后返回前端显示
+          </div>
+        </div>
+        <p class="mini" style="margin-top:6px;">
+          离线链路：<code>Data/*.pdf</code> 经 <code>RAG/Get_data_from_pdf.py</code> 导出到 <code>pdf_extract_result.xlsx</code>，再由 <code>RAG/Loading_in_Milvus.py</code> 分块、生成向量并写入 <code>Agent_System</code> 集合。
+        </p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>如何运行</h2>
+      <ul class="run-list">
+        <li>准备本地依赖服务：Milvus 需监听 <code>http://localhost:19530</code>；聊天/向量接口需监听 <code>54329</code>、<code>54331</code>、<code>54332</code>。这些服务的启动脚本与部署说明：<strong>Not found in repo.</strong></li>
+        <li>启动后端：在仓库根目录执行 <code>python Back_end/api_server.py</code>。</li>
+        <li>启动前端：进入 <code>Front_end</code> 后执行 <code>npm install</code>、<code>npm run dev</code>。</li>
+        <li>打开 <code>http://localhost:3000</code>；前端会把 <code>/api</code> 请求代理到 <code>http://localhost:8000</code>。</li>
+        <li>Python 依赖清单文件（如 <code>requirements.txt</code> / <code>pyproject.toml</code>）：<strong>Not found in repo.</strong></li>
+      </ul>
+    </section>
+
+    <footer class="footer">
+      <div>
+        证据来源：<code>Front_end/src/App.tsx</code>、<code>Front_end/package.json</code>、<code>Front_end/vite.config.ts</code>、<code>Back_end/api_server.py</code>、<code>Agent/agent.py</code>、<code>MCP/Hybrid_Search.py</code>、<code>RAG/Collection_schema.py</code>、<code>RAG/Loading_in_Milvus.py</code>。
+      </div>
+      <div>说明：内容仅依据仓库可见文件整理。</div>
+    </footer>
+  </main>
+</body>
+</html>

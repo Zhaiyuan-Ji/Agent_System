@@ -1,0 +1,9 @@
+.idea/workspace.xml
+.idea/deployment.xml
+
+__pycache__/
+*.pyc
+
+Front_end/node_modules/
+Front_end/.vite/
+Front_end/dist/
