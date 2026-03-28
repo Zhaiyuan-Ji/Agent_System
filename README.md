@@ -2,7 +2,7 @@
 
 基于 LangChain Agent 的 AI 对话系统，支持流式响应、上下文管理和 Redis 缓存。
 
-!\[截图1]\(picture/1.png null)
+![截图1](picture/1.png)
 
 ## 功能特性
 
