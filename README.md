@@ -2,6 +2,8 @@
 
 基于 LangChain Agent 的 AI 对话系统，支持流式响应、上下文管理和 Redis 缓存。
 
+!\[截图1]\(picture/1.png null)
+
 ## 功能特性
 
 - **流式响应**：逐字流式输出，实时显示 AI 回复
@@ -87,6 +89,5 @@ npm run dev
 | `/api/context/{thread_id}`       | GET    | 获取上下文预览   |
 | `/api/conversations/{thread_id}` | DELETE | 清空会话      |
 
-## 截图
+##
 
-![截图1](picture/1.png)
