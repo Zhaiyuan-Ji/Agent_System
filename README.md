@@ -1,4 +1,4 @@
-# Agent System
+# Agent System（Currently under development）
 
 基于 LangChain Agent 的 AI 对话系统，支持流式响应、上下文管理和 Redis 缓存。
 
@@ -90,4 +90,3 @@ npm run dev
 | `/api/conversations/{thread_id}` | DELETE | 清空会话      |
 
 ##
-
