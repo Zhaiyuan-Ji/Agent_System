@@ -1,9 +1,41 @@
-.idea/workspace.xml
-.idea/deployment.xml
+# IDE
+.idea/
+.vscode/
 
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
 
+# Frontend
 Front_end/node_modules/
 Front_end/.vite/
 Front_end/dist/
+Front_end/package-lock.json
+
+# Output & Logs
+output/
+debug_logs/
+*.log
+
+# Debug files
+debug_log.py
+debug_log_*.py
+start_debug.py
+test_stream.py
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db

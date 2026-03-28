@@ -1,14 +1,16 @@
 .shell {
-  min-height: 100vh;
+  height: 100vh;
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
   background:
     radial-gradient(circle at top left, rgba(225, 160, 82, 0.18), transparent 26%),
     radial-gradient(circle at bottom right, rgba(28, 105, 89, 0.18), transparent 30%),
     linear-gradient(180deg, #f6f1e8 0%, #efe6d8 100%);
+  overflow: hidden;
 }
 
 .sidebar {
+  height: 100vh;
   padding: 28px;
   border-right: 1px solid rgba(52, 55, 47, 0.12);
   background: rgba(255, 252, 246, 0.72);
@@ -16,6 +18,7 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  overflow: auto;
 }
 
 .brand-card {
@@ -50,6 +53,7 @@
 }
 
 .new-chat-button,
+.secondary-button,
 .prompt-chip,
 .send-button {
   border: 0;
@@ -70,7 +74,18 @@
   box-shadow: 0 14px 28px rgba(31, 109, 93, 0.18);
 }
 
+.secondary-button {
+  padding: 13px 16px;
+  border-radius: 16px;
+  background: #f4ecdf;
+  color: var(--panel-text);
+  font-size: 0.94rem;
+  font-weight: 600;
+  border: 1px solid rgba(52, 55, 47, 0.08);
+}
+
 .new-chat-button:hover,
+.secondary-button:hover,
 .prompt-chip:hover,
 .send-button:hover {
   transform: translateY(-1px);
@@ -114,10 +129,13 @@
 
 .workspace {
   min-width: 0;
+  min-height: 0;
+  height: 100vh;
   padding: 28px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  overflow: hidden;
 }
 
 .workspace-header {
@@ -125,6 +143,12 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
 }
 
 .workspace-header h2 {
@@ -160,6 +184,132 @@
   background: rgba(255, 252, 246, 0.8);
   border: 1px solid rgba(52, 55, 47, 0.08);
   overflow: auto;
+}
+
+.context-panel {
+  flex: 0 0 auto;
+  min-height: 260px;
+  border-radius: 28px;
+  background: rgba(255, 252, 246, 0.88);
+  border: 1px solid rgba(52, 55, 47, 0.08);
+  padding: 22px;
+  max-height: 44vh;
+  overflow-y: auto;
+}
+
+.context-panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.context-panel-header h3 {
+  margin: 6px 0 0;
+  font-size: 1.35rem;
+}
+
+.context-refresh-button {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #f4ecdf;
+  border: 1px solid rgba(52, 55, 47, 0.08);
+  color: var(--panel-text);
+}
+
+.context-refresh-button {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.context-tip {
+  color: var(--muted-text);
+  margin: 14px 0 18px;
+  line-height: 1.7;
+}
+
+.context-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: visible;
+  padding-right: 6px;
+  padding-bottom: 16px;
+}
+
+.context-current-question,
+.context-section {
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(52, 55, 47, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.context-current-question {
+  background: #f8f3e8;
+}
+
+.context-section-header {
+  margin-bottom: 12px;
+}
+
+.context-section-header p {
+  margin: 6px 0 0;
+  color: var(--muted-text);
+  line-height: 1.6;
+}
+
+.context-section-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.context-item {
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(52, 55, 47, 0.08);
+  background: #fbf5eb;
+}
+
+.context-item.assistant {
+  background: #f5faf7;
+}
+
+.context-item.system {
+  background: #f7f1fe;
+}
+
+.context-item.tool {
+  background: #eef5fb;
+}
+
+.context-item-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.context-item-meta span {
+  color: var(--muted-text);
+  font-size: 0.86rem;
+}
+
+.context-item pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--panel-text);
+  font-family: "JetBrains Mono", "Cascadia Code", monospace;
+  line-height: 1.7;
+}
+
+.context-empty {
+  padding: 18px;
+  border-radius: 18px;
+  background: #fbf5eb;
+  color: var(--muted-text);
 }
 
 .empty-state {
@@ -351,21 +501,39 @@
 
 @media (max-width: 980px) {
   .shell {
+    height: auto;
     grid-template-columns: 1fr;
+    overflow: auto;
   }
 
   .sidebar {
+    height: auto;
     border-right: 0;
     border-bottom: 1px solid rgba(52, 55, 47, 0.12);
+    overflow: visible;
   }
 
   .workspace-header {
     flex-direction: column;
   }
 
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
   .thread-card {
     min-width: 0;
     width: 100%;
+  }
+
+  .workspace {
+    height: auto;
+    overflow: visible;
+  }
+
+  .context-panel {
+    max-height: none;
   }
 }
 

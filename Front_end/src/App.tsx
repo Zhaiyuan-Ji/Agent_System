@@ -14,13 +14,31 @@ interface Message {
 interface ChatResponse {
   thread_id: string
   message: string
-  mode: string
 }
 
 interface HealthResponse {
   status: string
-  mode: string
-  model: string
+}
+
+interface PromptMessage {
+  id: string | null
+  type: string
+  role: string
+  content: string
+}
+
+interface ContextSection {
+  key: string
+  title: string
+  description: string
+  messages: PromptMessage[]
+}
+
+interface ContextResponse {
+  thread_id: string
+  current_question: PromptMessage | null
+  current_answer: PromptMessage[]
+  sections: ContextSection[]
 }
 
 const suggestions = [
@@ -38,28 +56,68 @@ function formatTime(value: string) {
   })
 }
 
+function getContextLabel(role: string) {
+  if (role === 'system') {
+    return '系统消息'
+  }
+
+  if (role === 'assistant') {
+    return '助手消息'
+  }
+
+  if (role === 'tool') {
+    return '工具结果'
+  }
+
+  return '用户消息'
+}
+
 function App() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [threadId, setThreadId] = useState(createThreadId)
-  const [modeLabel, setModeLabel] = useState('正在连接后端')
-  const [modelLabel, setModelLabel] = useState('未获取')
+  const [statusLabel, setStatusLabel] = useState('正在连接后端')
+  const [showContextPanel, setShowContextPanel] = useState(false)
+  const [isLoadingContext, setIsLoadingContext] = useState(false)
+  const [contextData, setContextData] = useState<ContextResponse | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    // 启动时读一次后端状态，让页面知道当前是演示模式还是模型模式。
+  const refreshHealth = () => {
     fetch('/api/health')
       .then(response => response.json() as Promise<HealthResponse>)
-      .then(data => {
-        setModeLabel(data.mode === 'openai' ? '模型模式' : '演示模式')
-        setModelLabel(data.model)
+      .then(() => {
+        setStatusLabel('已连接')
       })
       .catch(() => {
-        setModeLabel('后端未连接')
-        setModelLabel('不可用')
+        setStatusLabel('后端未连接')
       })
+  }
+
+  const refreshContext = (draft = '') => {
+    setIsLoadingContext(true)
+
+    fetch(`/api/context/${threadId}?draft=${encodeURIComponent(draft)}`)
+      .then(response => response.json() as Promise<ContextResponse>)
+      .then(data => {
+        setContextData(data)
+      })
+      .finally(() => {
+        setIsLoadingContext(false)
+      })
+  }
+
+  useEffect(() => {
+    refreshHealth()
+
+    const timer = window.setInterval(() => {
+      refreshHealth()
+    }, 5000)
+
+    return () => {
+      window.clearInterval(timer)
+    }
   }, [])
 
   useEffect(() => {
@@ -73,10 +131,15 @@ function App() {
       return
     }
 
-    // 输入框高度跟着内容走，体验会更像聊天产品。
     textarea.style.height = '0px'
     textarea.style.height = `${Math.min(textarea.scrollHeight, 220)}px`
   }, [input])
+
+  useEffect(() => {
+    if (showContextPanel) {
+      refreshContext()
+    }
+  }, [showContextPanel, threadId])
 
   const appendMessage = (role: Role, content: string) => {
     const nextMessage: Message = {
@@ -89,7 +152,7 @@ function App() {
     setMessages(current => [...current, nextMessage])
   }
 
-  const sendMessage = (content: string) => {
+  const sendMessage = async (content: string) => {
     const trimmed = content.trim()
 
     if (!trimmed || isSending) {
@@ -100,33 +163,79 @@ function App() {
     setInput('')
     setIsSending(true)
 
-    fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: trimmed,
-        thread_id: threadId,
-      }),
-    })
-      .then(async response => {
-        const data = await response.json() as ChatResponse
+    const assistantMsgId = `${'assistant'}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+    setMessages(current => [...current, {
+      id: assistantMsgId,
+      role: 'assistant' as Role,
+      content: '',
+      createdAt: new Date().toISOString(),
+    }])
 
-        if (!response.ok) {
-          return Promise.reject(new Error('消息发送失败'))
+    try {
+      const response = await fetch('/api/chat/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: trimmed,
+          thread_id: threadId,
+        }),
+      })
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+      let fullContent = ''
+      let currentThreadId = threadId
+
+      while (reader) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const text = decoder.decode(value)
+        const lines = text.split('\n').filter(l => l.trim())
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6))
+
+              if (data.type === 'text') {
+                fullContent += data.content
+                setMessages(current => current.map(msg =>
+                  msg.id === assistantMsgId
+                    ? { ...msg, content: fullContent }
+                    : msg
+                ))
+              } else if (data.type === 'done') {
+                currentThreadId = data.thread_id || currentThreadId
+              }
+            } catch (e) {
+              // ignore parse errors
+            }
+          }
         }
+      }
 
-        setThreadId(data.thread_id)
-        setModeLabel(data.mode === 'openai' ? '模型模式' : '演示模式')
-        appendMessage('assistant', data.message)
-      })
-      .catch(() => {
-        appendMessage('assistant', '当前没有拿到可用响应，请检查后端是否启动。')
-      })
-      .finally(() => {
-        setIsSending(false)
-      })
+      setThreadId(currentThreadId)
+      setStatusLabel('已连接')
+
+      if (showContextPanel) {
+        window.setTimeout(() => {
+          refreshContext()
+        }, 200)
+      }
+    } catch (e) {
+      console.error('Stream error:', e)
+      refreshHealth()
+      setMessages(current => current.map(msg =>
+        msg.id === assistantMsgId
+          ? { ...msg, content: '当前没有拿到可用响应，请检查后端是否正常启动。' }
+          : msg
+      ))
+    } finally {
+      setIsSending(false)
+    }
   }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -142,13 +251,13 @@ function App() {
   }
 
   const handleNewChat = () => {
-    // 新会话会清掉当前线程，避免旧上下文继续带入。
     fetch(`/api/conversations/${threadId}`, {
       method: 'DELETE',
     }).finally(() => {
       setMessages([])
       setInput('')
       setThreadId(createThreadId())
+      setContextData(null)
     })
   }
 
@@ -159,7 +268,7 @@ function App() {
           <span className="brand-badge">AI</span>
           <div>
             <h1>Agent Console</h1>
-            <p>先做成纯聊天平台，后续再接模型与工具。</p>
+            <p>左侧是固定控制区，右侧分别滚动聊天区和上下文区。</p>
           </div>
         </div>
 
@@ -167,10 +276,19 @@ function App() {
           新建会话
         </button>
 
+        <button
+          className="secondary-button"
+          onClick={() => {
+            setShowContextPanel(current => !current)
+          }}
+          type="button"
+        >
+          {showContextPanel ? '隐藏实时上下文' : '查看实时上下文'}
+        </button>
+
         <section className="sidebar-panel">
           <span className="panel-label">运行状态</span>
-          <p>{modeLabel}</p>
-          <p>{modelLabel}</p>
+          <p>{statusLabel}</p>
         </section>
 
         <section className="sidebar-panel">
@@ -194,23 +312,94 @@ function App() {
         <header className="workspace-header">
           <div>
             <p className="eyebrow">Chat Workspace</p>
-            <h2>像 ChatGPT 一样直接对话</h2>
+            <h2>Are you ready, JZY?------ Let's Go!</h2>
           </div>
-          <div className="thread-card">
-            <span>Thread</span>
-            <code>{threadId}</code>
+          <div className="header-actions">
+            <div className="thread-card">
+              <span>Thread</span>
+              <code>{threadId}</code>
+            </div>
+            {showContextPanel && (
+              <button
+                className="context-refresh-button"
+                onClick={() => refreshContext(input.trim())}
+                type="button"
+              >
+                {isLoadingContext ? '刷新中...' : '刷新上下文'}
+              </button>
+            )}
           </div>
         </header>
+
+        {showContextPanel && (
+          <section className="context-panel">
+            <div className="context-panel-header">
+              <div>
+                <p className="eyebrow">Live Prompt</p>
+                <h3>当前实际送给模型的上下文</h3>
+              </div>
+            </div>
+            <p className="context-tip">这里明确区分当前问题、当前轮回复和过去上下文，不再把它们混在一起。</p>
+
+            <div className="context-list">
+              <article className="context-current-question">
+                <div className="context-item-meta">
+                  <strong>当前问题</strong>
+                </div>
+                <pre>{contextData?.current_question?.content || '当前还没有可以作为当前问题展示的内容。'}</pre>
+              </article>
+
+              {Boolean(contextData?.current_answer.length) && (
+                <section className="context-section">
+                  <div className="context-section-header">
+                    <strong>当前轮回复</strong>
+                    <p>这部分是模型对当前问题的最近回复。</p>
+                  </div>
+                  <div className="context-section-list">
+                    {contextData?.current_answer.map((message, index) => (
+                      <article className={`context-item ${message.role}`} key={`${message.id ?? 'current'}_${index}`}>
+                        <div className="context-item-meta">
+                          <strong>{getContextLabel(message.role)}</strong>
+                        </div>
+                        <pre>{message.content}</pre>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {(contextData?.sections ?? []).map(section => (
+                <section className="context-section" key={section.key}>
+                  <div className="context-section-header">
+                    <strong>{section.title}</strong>
+                    <p>{section.description}</p>
+                  </div>
+                  <div className="context-section-list">
+                    {section.messages.map((message, index) => (
+                      <article className={`context-item ${message.role}`} key={`${message.id ?? section.key}_${index}`}>
+                        <div className="context-item-meta">
+                          <strong>{getContextLabel(message.role)}</strong>
+                        </div>
+                        <pre>{message.content}</pre>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ))}
+
+              {!isLoadingContext && (!contextData || (contextData.sections.length === 0 && !contextData.current_question)) && (
+                <div className="context-empty">当前线程还没有可展示的上下文。</div>
+              )}
+            </div>
+          </section>
+        )}
 
         <section className="conversation">
           {messages.length === 0 ? (
             <div className="empty-state">
               <p className="empty-kicker">准备好了</p>
-              <h3>先发一条消息，我们把平台主链路跑顺。</h3>
-              <p>
-                现在默认是纯聊天版，没有接 MCP。
-                等前后端稳定后，再把 RAG 作为独立能力接回来会更稳。
-              </p>
+              <h3>先发一条消息，我们把对话链路跑顺。</h3>
+              <p>打开实时上下文面板后，你可以清楚看到当前问题和过去上下文是如何分开的。</p>
             </div>
           ) : (
             <div className="message-list">
