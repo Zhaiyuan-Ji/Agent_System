@@ -10,8 +10,8 @@ from typing import Any
 
 from langchain_core.messages import BaseMessage, SystemMessage
 
-from .config import SYSTEM_PROMPT
 from .manager import RedisContextManager
+from Agent.System_prompt import SYSTEM_PROMPT
 
 context_manager = RedisContextManager()
 

@@ -9,6 +9,15 @@ interface Message {
   role: Role
   content: string
   createdAt: string
+  toolCalls?: ToolCall[]
+}
+
+interface ToolCall {
+  id: string
+  tool: string
+  args: string
+  status: 'calling' | 'completed'
+  resultPreview?: string
 }
 
 interface ChatResponse {
@@ -169,6 +178,7 @@ function App() {
       role: 'assistant' as Role,
       content: '',
       createdAt: new Date().toISOString(),
+      toolCalls: [],
     }])
 
     try {
@@ -207,6 +217,41 @@ function App() {
                     ? { ...msg, content: fullContent }
                     : msg
                 ))
+              } else if (data.type === 'tool_call') {
+                const toolCall: ToolCall = {
+                  id: `tc_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                  tool: data.tool,
+                  args: data.args,
+                  status: 'calling',
+                }
+                setMessages(current => current.map(msg =>
+                  msg.id === assistantMsgId
+                    ? { ...msg, toolCalls: [...(msg.toolCalls || []), toolCall] }
+                    : msg
+                ))
+              } else if (data.type === 'tool_result') {
+                setMessages(current => current.map(msg => {
+                  if (msg.id !== assistantMsgId) return msg
+                  const toolCalls = msg.toolCalls || []
+                  if (toolCalls.length === 0) {
+                    const newToolCall: ToolCall = {
+                      id: `tc_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                      tool: data.tool || 'unknown',
+                      args: '{}',
+                      status: 'completed',
+                      resultPreview: data.preview,
+                    }
+                    return { ...msg, toolCalls: [newToolCall] }
+                  }
+                  const lastIndex = toolCalls.length - 1
+                  const updatedToolCalls = [...toolCalls]
+                  updatedToolCalls[lastIndex] = {
+                    ...updatedToolCalls[lastIndex],
+                    status: 'completed',
+                    resultPreview: data.preview,
+                  }
+                  return { ...msg, toolCalls: updatedToolCalls }
+                }))
               } else if (data.type === 'done') {
                 currentThreadId = data.thread_id || currentThreadId
               }
@@ -411,6 +456,35 @@ function App() {
                       <strong>{message.role === 'user' ? '你' : '助手'}</strong>
                       <span>{formatTime(message.createdAt)}</span>
                     </div>
+                    {message.role === 'assistant' && message.toolCalls && message.toolCalls.length > 0 && (
+                      <div className="tool-calls">
+                        <div className="tool-calls-header">
+                          <span className="tool-calls-icon">🔧</span>
+                          <strong>调用了 {message.toolCalls.length} 个工具</strong>
+                        </div>
+                        <div className="tool-calls-list">
+                          {message.toolCalls.map((tc) => (
+                            <div key={tc.id} className={`tool-call-item ${tc.status}`}>
+                              <div className="tool-call-header">
+                                <span className="tool-name">
+                                  {tc.status === 'calling' ? '⏳' : '✅'} {tc.tool}
+                                </span>
+                              </div>
+                              <div className="tool-call-args">
+                                <span className="tool-args-label">参数:</span>
+                                <code>{tc.args}</code>
+                              </div>
+                              {tc.resultPreview && (
+                                <div className="tool-call-result">
+                                  <span className="tool-result-label">结果预览:</span>
+                                  <pre>{tc.resultPreview}</pre>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     {message.role === 'assistant' ? (
                       <div className="markdown-body">
                         <ReactMarkdown>{message.content}</ReactMarkdown>

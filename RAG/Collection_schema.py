@@ -108,23 +108,29 @@ index_params.add_index(
     field_name="title",
     index_type="NGRAM",
     index_name="title_ngram_index",  # 唯一索引名
-    min_gram=2,  # Minimum substring length (e.g., 2-gram: "st")
+    min_gram=1,  # Minimum substring length (e.g., 2-gram: "st")
     max_gram=20  # Maximum substring length (e.g., 3-gram: "sta")
 )
 
 index_params.add_index(
     field_name="authors",
-    index_type="NGRAM",
-    index_name="authors_ngram_index",  # 唯一索引名
-    min_gram=2,  # Minimum substring length (e.g., 2-gram: "st")
-    max_gram=20  # Maximum substring length (e.g., 3-gram: "sta")
+    index_type="INVERTED",
+    index_name="authors_INVERTED_index",  # 唯一索引名
+
+)
+
+index_params.add_index(
+    field_name="publish_year",
+    index_type="AUTOINDEX",
+    index_name="publish_year_index",  # 唯一索引名
+
 )
 
 index_params.add_index(
     field_name="summary",
     index_type="NGRAM",
     index_name="summary_ngram_index",  # 唯一索引名
-    min_gram=2,  # Minimum substring length (e.g., 2-gram: "st")
+    min_gram=1,  # Minimum substring length (e.g., 2-gram: "st")
     max_gram=20  # Maximum substring length (e.g., 3-gram: "sta")
 )
 

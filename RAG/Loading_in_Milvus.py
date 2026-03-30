@@ -236,6 +236,12 @@ def load_collection_and_insert():
         total_inserted += inserted
         print(f"✅ 已插入剩余 {inserted} 条数据（累计：{total_inserted}）")
 
+    # 刷新数据到磁盘并加载到内存
+    print("⏳ 正在刷新数据并加载到内存...")
+    milvus_client.flush(COLLECTION_NAME)
+    milvus_client.load_collection(COLLECTION_NAME)
+    print("✅ 数据加载完成")
+
     # 保存新XLSX
     column_widths = [30, 30, 15, 50, 80, 80, 80]
     for col_idx, width in enumerate(column_widths, 1):
@@ -243,7 +249,7 @@ def load_collection_and_insert():
         ws_output.column_dimensions[col_letter].width = width
     wb_output.save(OUTPUT_XLSX)
 
-    # 验证结果（匹配你的Collection）
+    # 验证结果
     stats = milvus_client.get_collection_stats(COLLECTION_NAME)
     print(f"\n🎉 全流程完成！")
     print(f"✅ 向量文件保存至：{VECTOR_DIR}")

@@ -17,6 +17,7 @@ from Context import (
     log_after_model,
 )
 from Context.config import OPENAI_BASE_URL, OPENAI_API_KEY, OPENAI_MODEL
+from Tool import hybrid_search, filtered_search
 
 
 def create_chat_agent() -> any:
@@ -25,12 +26,12 @@ def create_chat_agent() -> any:
         model_provider="openai",
         base_url=OPENAI_BASE_URL,
         api_key=OPENAI_API_KEY,
-        temperature=0.7,
+        temperature=0.0,
     )
 
     agent = create_agent(
         model=model,
-        tools=[],
+        tools=[hybrid_search, filtered_search],
         system_prompt=SYSTEM_PROMPT,
         context_schema=AgentContext,
         middleware=[

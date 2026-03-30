@@ -7,7 +7,6 @@ Context Module
 from .schema import AgentContext
 from .manager import RedisContextManager
 from .config import (
-    SYSTEM_PROMPT,
     get_agent_settings,
     OPENAI_BASE_URL,
     OPENAI_API_KEY,
@@ -24,6 +23,7 @@ from .middleware import (
     inject_context,
     log_after_model,
 )
+from Agent.System_prompt import SYSTEM_PROMPT
 
 __all__ = [
     "AgentContext",

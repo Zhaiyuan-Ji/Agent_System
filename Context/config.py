@@ -16,10 +16,6 @@ CHAT_MODE = os.getenv("CHAT_MODE", "openai").lower()
 os.environ["OPENAI_BASE_URL"] = OPENAI_BASE_URL
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
-SYSTEM_PROMPT = """
-你是一个中文 AI 助手。
-""".strip()
-
 
 def get_agent_settings() -> dict[str, str]:
     return {

@@ -546,11 +546,112 @@
   .message-list {
     padding: 16px;
   }
+}
 
-  .message-card {
-    grid-template-columns: 40px minmax(0, 1fr);
-    padding: 14px;
-  }
+.tool-calls {
+  margin-bottom: 16px;
+  padding: 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
+  border: 1px solid rgba(66, 133, 244, 0.25);
+}
+
+.tool-calls-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #1a73e8;
+  font-size: 0.95rem;
+}
+
+.tool-calls-icon {
+  font-size: 1.1rem;
+}
+
+.tool-calls-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tool-call-item {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(66, 133, 244, 0.15);
+}
+
+.tool-call-item.calling {
+  background: rgba(255, 243, 224, 0.6);
+  border-color: rgba(251, 188, 5, 0.3);
+}
+
+.tool-call-item.completed {
+  background: rgba(232, 255, 232, 0.5);
+  border-color: rgba(52, 168, 83, 0.2);
+}
+
+.tool-call-header {
+  margin-bottom: 8px;
+}
+
+.tool-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: #333;
+}
+
+.tool-call-args {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.tool-args-label {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.tool-call-args code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  word-break: break-all;
+}
+
+.tool-call-result {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.tool-result-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #1a73e8;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.tool-call-result pre {
+  font-size: 0.8rem;
+  color: #555;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 120px;
+  overflow-y: auto;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.message-card {
+  grid-template-columns: 40px minmax(0, 1fr);
+  padding: 14px;
+}
 
   .avatar {
     width: 40px;

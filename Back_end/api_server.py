@@ -88,18 +88,36 @@ async def chat_stream(request: ChatRequest):
                     token, metadata = chunk.get("data")
                     node = metadata.get("langgraph_node", "")
 
-                    if node != "model":
+                    if node == "tools":
+                        tool_content = getattr(token, 'content', '') or ""
+                        if tool_content:
+                            tool_name = getattr(token, 'name', 'unknown')
+                            tool_preview = tool_content[:200] + "..." if len(tool_content) > 200 else tool_content
+                            yield f"data: {json.dumps({'type': 'tool_result', 'tool': tool_name, 'preview': tool_preview})}\n\n"
                         continue
 
-                    if token.content_blocks:
-                        for block in token.content_blocks:
-                            block_data = block if isinstance(block, dict) else {"type": getattr(block, 'type', ''), "text": getattr(block, 'text', '')}
-                            if block_data.get("type") == "text":
-                                text = block_data.get("text") or ""
-                                if text:
-                                    is_assistant_responding = True
-                                    full_content += text
-                                    yield f"data: {json.dumps({'type': 'text', 'content': text})}\n\n"
+                    if node == "model":
+                        if hasattr(token, 'tool_calls') and token.tool_calls:
+                            for tc in token.tool_calls:
+                                if isinstance(tc, dict):
+                                    tool_name = tc.get('name', 'unknown')
+                                    tool_args = tc.get('args', {})
+                                else:
+                                    tool_name = getattr(tc, 'name', 'unknown')
+                                    tool_args = getattr(tc, 'args', {})
+                                if tool_name:
+                                    args_str = json.dumps(tool_args, ensure_ascii=False)[:500]
+                                    yield f"data: {json.dumps({'type': 'tool_call', 'tool': tool_name, 'args': args_str})}\n\n"
+
+                        if hasattr(token, 'content_blocks') and token.content_blocks:
+                            for block in token.content_blocks:
+                                block_data = block if isinstance(block, dict) else {"type": getattr(block, 'type', ''), "text": getattr(block, 'text', '')}
+                                if block_data.get("type") == "text":
+                                    text = block_data.get("text") or ""
+                                    if text:
+                                        is_assistant_responding = True
+                                        full_content += text
+                                        yield f"data: {json.dumps({'type': 'text', 'content': text})}\n\n"
 
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"

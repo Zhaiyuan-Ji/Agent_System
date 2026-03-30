@@ -18,7 +18,7 @@ class RedisContextManager:
     def __init__(
         self,
         recent_message_limit: int = 12,
-        compact_trigger_messages: int = 20,
+        compact_trigger_messages: int = 3,
     ) -> None:
         self.recent_message_limit = recent_message_limit
         self.compact_trigger_messages = compact_trigger_messages
@@ -122,6 +122,13 @@ class RedisContextManager:
 
         for message in messages:
             role = getattr(message, "type", message.__class__.__name__)
-            lines.append(f"[{role}] {message.content}")
+            content = getattr(message, "content", "") or ""
+
+            if role == "tool":
+                tool_name = getattr(message, "name", "")
+                content_preview = content[:100] + "..." if len(content) > 100 else content
+                lines.append(f"[{role}] {tool_name}: {content_preview}")
+            else:
+                lines.append(f"[{role}] {content}")
 
         return "\n".join(lines)
