@@ -28,7 +28,7 @@
 
 ***
 
-!\[示例图]\(picture/1.png null)
+!\[示例图]\(picture/1.png)
 
 ## 技术架构
 
