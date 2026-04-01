@@ -154,7 +154,7 @@ agent = create_agent(
 | `load_context_messages()` | 加载上下文（摘要 + 历史消息）        |
 | `append_messages()`       | 保存新消息，触发压缩              |
 | `compact()`               | 调用 LLM 生成摘要，保留最近 12 条消息 |
-| `summarize()`             | 用 GPT 生成简洁摘要            |
+| `summarize()`             | 用 LLM（Qwen3-4B）生成简洁摘要      |
 
 **关键设计**：
 
