@@ -90,6 +90,11 @@ Agent_System/
 │   ├── schema.py              # AgentContext 数据结构
 │   └── config.py             # 配置管理
 │
+├── Sglang/                    # Sglang 模型推理配置
+│   ├── Qwen3-4B-Instruct-2507.py  # 主模型推理脚本
+│   ├── Qwen3-Embedding-4B.py     # Embedding 稠密向量脚本
+│   └── BAAI-bge-m3.py            # Embedding 稀疏向量脚本
+│
 ├── Tool/                      # 工具模块
 │   ├── Hybrid_Search_Tool.py  # 混合搜索工具（稠密+稀疏向量）
 │   └── Filtered_Search_Tool.py # 条件过滤搜索工具
@@ -116,7 +121,11 @@ Agent_System/
 
 使用 LangChain 的 `create_agent` 工厂函数创建 Agent，集成了：
 
-- **模型**：OpenAI 兼容接口（temperature=0.0 保证确定性）
+- **模型**：Qwen3-4B-Instruct-2507（通过 Sglang 推理加速，OpenAI 兼容协议，端口 54329）
+- **Embedding 模型**：
+  - 稠密向量：Qwen3-Embedding-4B（Sglang 启动，端口 54331）
+  - 稀疏向量：BAAI-bge-m3（FlagEmbedding，端口 54332）
+- **模型配置**：所有模型加载信息详见 [Sglang/](Sglang/) 文件夹
 - **工具**：`hybrid_search` 和 `filtered_search`
 - **系统提示词**：规范 Agent 的行为（何时调用工具、如何引用）
 - **中间件**：注入历史上下文、记录工具调用
@@ -219,6 +228,24 @@ if (data.type === 'text') {
 
 ## 学习要点
 
+### 0. Sglang 推理加速
+
+本项目使用 **Sglang** 作为推理框架，为大模型提供加速支持：
+
+- **Sglang**：高性能的 LLM 推理框架，支持 tensor parallel、flash attention 等优化
+- **OpenAI 兼容协议**：通过 `--served-model-name` 参数提供 OpenAI 兼容接口
+- **多模型部署**：主模型 + Embedding 模型可同时运行在不同端口
+
+```python
+# Sglang 启动示例
+python -m sglang.launch_server \
+    --model-path /path/to/model \
+    --port 54329 \
+    --dtype bfloat16 \
+    --tp 1 \
+    --served-model-name gpt-5.1
+```
+
 ### 1. LangChain Agent 开发
 
 - **create\_agent**：LangChain 的 Agent 工厂函数，统一封装模型、工具、提示词
@@ -271,7 +298,10 @@ async for chunk in result:
 - Milvus 向量数据库（localhost:19530）
 - Redis（localhost:6379）
 - Embedding 服务（稠密向量 + 稀疏向量）
-- LLM 服务（OpenAI 兼容接口）
+- LLM 服务（Sglang + OpenAI 兼容接口）
+  - 主模型：Qwen3-4B-Instruct-2507（端口 54329）
+  - Embedding 稠密：Qwen3-Embedding-4B（端口 54331）
+  - Embedding 稀疏：BAAI-bge-m3（端口 54332）
 
 ### 安装
 
