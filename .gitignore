@@ -1,6 +1,7 @@
 # IDE
 .idea/
 .vscode/
+.trae/
 
 # Python
 __pycache__/
@@ -15,10 +16,12 @@ dist/
 build/
 
 # Frontend
+.vite/
 Front_end/node_modules/
 Front_end/.vite/
 Front_end/dist/
 Front_end/package-lock.json
+Front_end/vite.config.ts.timestamp-*.mjs
 
 # Output & Logs
 output/
