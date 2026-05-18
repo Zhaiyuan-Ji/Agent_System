@@ -1,12 +1,29 @@
 """
 Agent Module
 
-提供 AI Agent 实例。
+Provides lazy access to the chat agent to avoid import cycles during setup.
 """
 
-from .agent import agent, create_chat_agent
+from __future__ import annotations
 
-__all__ = [
-    "agent",
-    "create_chat_agent",
-]
+from typing import Any
+
+__all__ = ["agent", "create_chat_agent"]
+
+
+def create_chat_agent() -> Any:
+    from .agent import create_chat_agent as _create_chat_agent
+
+    return _create_chat_agent()
+
+
+def __getattr__(name: str) -> Any:
+    if name == "agent":
+        from .agent import agent as _agent
+
+        return _agent
+
+    if name == "create_chat_agent":
+        return create_chat_agent
+
+    raise AttributeError(name)

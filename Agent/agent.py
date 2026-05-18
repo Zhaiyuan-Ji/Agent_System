@@ -17,6 +17,7 @@ from Context import (
     log_after_model,
 )
 from Context.config import OPENAI_BASE_URL, OPENAI_API_KEY, OPENAI_MODEL
+from Context.http_client_factory import create_async_http_client, create_sync_http_client
 from Tool import hybrid_search, filtered_search
 
 
@@ -27,6 +28,8 @@ def create_chat_agent() -> any:
         base_url=OPENAI_BASE_URL,
         api_key=OPENAI_API_KEY,
         temperature=0.0,
+        http_client=create_sync_http_client(),
+        http_async_client=create_async_http_client(),
     )
 
     agent = create_agent(

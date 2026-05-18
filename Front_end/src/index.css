@@ -1,11 +1,9 @@
 :root {
-  font-family: "Space Grotesk", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-family: "Aptos", "Noto Sans SC", "Microsoft YaHei UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #1f221c;
-  background: #efe6d8;
-  --panel-text: #1f221c;
-  --muted-text: #6e6a60;
+  color: #fbf4dd;
+  background: #0f1412;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -25,6 +23,7 @@ body,
 
 body {
   min-height: 100vh;
+  background: #0f1412;
 }
 
 button,

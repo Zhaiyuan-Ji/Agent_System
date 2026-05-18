@@ -7,14 +7,27 @@ os.environ['PYTHONIOENCODING'] = 'utf-8'
 
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
+from Context.http_client_factory import create_sync_http_client
 
 MILVUS_CLIENT = MilvusClient(uri="http://localhost:19530", token="root:Milvus")
 DENSE_CONFIG = {"base_url": "http://localhost:54331/v1", "api_key": "token-abc123"}
 SPARSE_CONFIG = {"base_url": "http://localhost:54332/v1", "api_key": "token-abc123"}
 EMBED_MODEL = "text-embedding-3-small"
 
-DENSE_CLIENT = OpenAI(base_url=DENSE_CONFIG["base_url"], api_key=DENSE_CONFIG["api_key"], timeout=30.0, max_retries=2)
-SPARSE_CLIENT = OpenAI(base_url=SPARSE_CONFIG["base_url"], api_key=SPARSE_CONFIG["api_key"], timeout=30.0, max_retries=2)
+DENSE_CLIENT = OpenAI(
+    base_url=DENSE_CONFIG["base_url"],
+    api_key=DENSE_CONFIG["api_key"],
+    timeout=30.0,
+    max_retries=2,
+    http_client=create_sync_http_client(),
+)
+SPARSE_CLIENT = OpenAI(
+    base_url=SPARSE_CONFIG["base_url"],
+    api_key=SPARSE_CONFIG["api_key"],
+    timeout=30.0,
+    max_retries=2,
+    http_client=create_sync_http_client(),
+)
 
 
 def get_dense_vector(text: str) -> list:
